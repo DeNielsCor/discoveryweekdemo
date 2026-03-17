@@ -1,6 +1,6 @@
 streamlit
 tensorflow==2.12.0
-numpy==1.26.4
 pillow
 opencv-contrib-python
 streamlit-webrtc
+numpy>=1.22,<1.24
