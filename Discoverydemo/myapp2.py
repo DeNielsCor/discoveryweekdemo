@@ -5,7 +5,8 @@ from PIL import Image
 import cv2
 import time
 import os
-from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
+import av
+from streamlit_webrtc import webrtc_streamer, WebRtcMode, RTCConfiguration
 
 # -----------------------------
 # PATHS (FIX FOR CLOUD DEPLOYMENT)
@@ -92,13 +93,13 @@ with tab2:
 with tab3:
     st.info("🎥 Live AI (prediction every 10 seconds)")
 
-    class VideoProcessor(VideoTransformerBase):
+    class VideoProcessor:
         def __init__(self):
             self.last_prediction_time = 0
             self.label = "Waiting for prediction..."
             self.confidence = 0
 
-        def transform(self, frame):
+        def recv(self, frame):
             img = frame.to_ndarray(format="bgr24")
             current_time = time.time()
 
@@ -128,11 +129,11 @@ with tab3:
                 cv2.LINE_AA,
             )
 
-            return img
+            return av.VideoFrame.from_ndarray(img, format="bgr24")
 
     webrtc_streamer(
         key="webcam_upgrade",
-        video_processor_factory=VideoProcessor,
+        mode=WebRtcMode.SENDRECV,
         rtc_configuration={
             "iceServers": [
                 {"urls": ["stun:stun.l.google.com:19302"]},
@@ -142,7 +143,9 @@ with tab3:
                 {"urls": ["stun:stun4.l.google.com:19302"]},
             ]
         },
+        video_processor_factory=VideoProcessor,
         media_stream_constraints={"video": True, "audio": False},
+        async_processing=True,
     )
 
 # -----------------------------
