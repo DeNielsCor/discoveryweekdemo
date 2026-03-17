@@ -4,7 +4,15 @@ import numpy as np
 from PIL import Image
 import cv2
 import time
+import os
 from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
+
+# -----------------------------
+# PATHS (FIX FOR CLOUD DEPLOYMENT)
+# -----------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "keras_model.h5")
+LABELS_PATH = os.path.join(BASE_DIR, "labels.txt")
 
 # -----------------------------
 # PAGE CONFIG
@@ -20,10 +28,10 @@ st.set_page_config(
 # -----------------------------
 @st.cache_resource
 def load_model():
-    return tf.keras.models.load_model("keras_model.h5")
+    return tf.keras.models.load_model(MODEL_PATH)
 
 model = load_model()
-class_names = open("labels.txt", "r").readlines()
+class_names = open(LABELS_PATH, "r").readlines()
 
 # -----------------------------
 # TITLE
